@@ -1,5 +1,9 @@
 package genetic
 
+import (
+	"math/rand"
+)
+
 // Generic crossover function
 type CrossFunc func(Individual, Individual, GeneticInfo)
 
@@ -15,9 +19,13 @@ func maskByteSwap(a, b, mask byte) (byte, byte) {
 	return a, b
 }
 
-// Annular crossover
+// Randomized version of annular crossover.
+func RandomAnnularCrossover(a, b Individual, info GeneticInfo) {
+	AnnularCrossover(a, b, info, rand.Intn(info.bytes*4))
+}
+
+// Annular crossover.
 func AnnularCrossover(a, b Individual, info GeneticInfo, start int) {
-	//start := rand.Intn(info.bytes * 4) // swap half of the bits starting with this one
 	bytestart := start / 8
 	singles := start % 8
 	fullsbyteswap := (info.bytes / 2)

@@ -5,7 +5,7 @@ import (
 )
 
 type Fitness interface {
-	Eval([]float32) float64
+	Eval([]float64) float64
 }
 
 type Ega struct {
