@@ -20,12 +20,12 @@ func maskByteSwap(a, b, mask byte) (byte, byte) {
 }
 
 // Randomized version of annular crossover.
-func RandomAnnularCrossover(a, b Individual, info GeneticInfo) {
+func RandomAnnularCrossover(a, b *Individual, info *GeneticInfo) {
 	AnnularCrossover(a, b, info, rand.Intn(info.bytes*4))
 }
 
 // Annular crossover.
-func AnnularCrossover(a, b Individual, info GeneticInfo, start int) {
+func AnnularCrossover(a, b *Individual, info *GeneticInfo, start int) {
 	bytestart := start / 8
 	singles := start % 8
 	fullsbyteswap := (info.bytes / 2)

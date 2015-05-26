@@ -7,25 +7,36 @@ import (
 )
 
 type GeneticInfo struct {
-	bytes       int  // bytes each individual has
-	genesize    int  // bytes each gene has
-	genes       int  // genes each individual has
-	intbits     int  // bits used for the integer part of each gene
-	decimalbits int  // bits used for the decimal part of each gene
-	signbit     bool // genes have a sign bit
-	population  int  // number of individuals in the population
+	bytes       int     // Bytes each individual has.
+	genesize    int     // Bytes each gene has.
+	genes       int     // Genes each individual has.
+	intbits     int     // Bits used for the integer part of each gene.
+	decimalbits int     // Bits used for the decimal part of each gene.
+	signbit     bool    // Genes have a sign bit.
+	population  int     // Number of individuals in the population.
+	mutation    float32 // Mutation rate.
+	crossover   float32 // Crossover rate.
 }
 
 type Individual struct {
 	genes    []byte    // genetic information
 	fenotype []float64 // gene values
 	info     *GeneticInfo
+	aptitude float64
 }
 
 // Return the size of the entire population in bytes
 func (g GeneticInfo) PopulationBytes() int {
 	return g.population * g.bytes
 }
+
+// ByAptitude implements sort.Interface for []*Individual based on
+// the aptitude field.
+type ByAptitude []*Individual
+
+func (a ByAptitude) Len() int           { return len(a) }
+func (a ByAptitude) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByAptitude) Less(i, j int) bool { return a[i].aptitude < a[j].aptitude }
 
 func CreateIndividual(inf *GeneticInfo) (*Individual, error) {
 	if (inf.signbit && (inf.decimalbits+inf.intbits+1)%8 != 0) || (!inf.signbit && (inf.decimalbits+inf.intbits)%8 != 0) {

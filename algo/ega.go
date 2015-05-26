@@ -1,7 +1,7 @@
 package genetic
 
 import (
-	"math/rand"
+	"sort"
 )
 
 type Fitness interface {
@@ -9,25 +9,49 @@ type Fitness interface {
 }
 
 type Ega struct {
-	info       GeneticInfo
-	population []Individual
+	info       *GeneticInfo
+	population []*Individual
 	eval       *Fitness
 }
 
-func (d *Ega) Setup(inf GeneticInfo, evalf *Fitness) { // , pointer_to_conditional_stop_func
+func (d *Ega) Setup(inf *GeneticInfo, evalf *Fitness) error {
 	d.info = inf
-	d.population = make([]Individual, inf.population*2) // double the size of the population.
+	d.eval = evalf
+	// Double the size of the population.
+	d.population = make([]*Individual, inf.population*2)
 	for i := range d.population {
-		d.population[i].genes = make([]byte, inf.bytes)
-		for j := 0; j < inf.bytes; j++ {
-			d.population[i].genes[j] = byte(rand.Intn(256))
+		var err error
+		d.population[i], err = CreateIndividual(inf)
+		if err != nil {
+			return err
 		}
 	}
+	// Evaluate first n.
+	for i := 0; i < inf.population; i++ {
+		d.population[i].aptitude = (*d.eval).Eval(d.population[i].fenotype)
+	}
+	return nil
 }
 
 func (d *Ega) Run(generations int) (float64, Individual) {
 	for i := 0; i < generations; i++ {
+		// Evaluate individuals.
+		for i := d.info.population; i < d.info.population*2; i++ {
+			d.population[i].aptitude = (*d.eval).Eval(d.population[i].fenotype)
+		}
+		// Sort by aptitude.
+		sort.Sort(ByAptitude(d.population))
+		// Clone best n into the worst n of the population.
+		for i := 0; i < d.info.population; i++ {
+			d.population[i] = d.population[d.info.population+i]
+		}
+		// Cross over with the eclectic operator.
+		for i := 0; i < d.info.population/2; i++ {
+			RandomAnnularCrossover(d.population[i], d.population[d.info.population-i-1], d.info)
+		}
+		// Randomly mutate bits.
 
+		// Update fenotype.
 	}
 	return 0, Individual{}
 }
