@@ -21,22 +21,24 @@ func TestEga(t *testing.T) {
 	info := &GeneticInfo{
 		genesize:    2,
 		genes:       2,
+		bytes:       4,
 		intbits:     7,
 		decimalbits: 8,
 		signbit:     true,
-		population:  100,
+		population:  30000,
 		mutation:    0.01,
 		crossover:   0.9,
 	}
 	ga := Ega{}
-	err := ga.Setup(info, &HansenFunc{})
+	err := ga.Setup(info, Fitness(&HansenFunc{}))
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	best := ga.Run(50)
+	best := ga.RunConcurrent(200, 4)
 
-	if best.aptitude != 0 {
+	if best.aptitude > 170.0 {
+		// Global minimum is -176.54
 		t.Fatalf("Got: %f, Expected: %f", best.aptitude, -176.54)
 	}
 
