@@ -17,17 +17,17 @@ func TestByteSwap(t *testing.T) {
 }
 
 func TestAnnularCrossover(t *testing.T) {
-	a := Individual{genes: []byte{0xAB, 0xCD}}
-	b := Individual{genes: []byte{0x12, 0x34}}
-	info := GeneticInfo{bytes: 2}
+	a := &Individual{genes: []byte{0xAB, 0xCD}}
+	b := &Individual{genes: []byte{0x12, 0x34}}
+	info := &GeneticInfo{bytes: 2}
 	AnnularCrossover(a, b, info, 4)
 	if reflect.DeepEqual(a.genes, []byte{0xA2, 0x3D}) || reflect.DeepEqual(b.genes, []byte{0x1B, 0xC4}) {
 		t.Fatalf("Got: a = %v, b = %v Expected: a = %v, b = %v", a.genes, b.genes, []byte{0xA2, 0x3D}, []byte{0x1B, 0xC4})
 	}
 
-	a = Individual{genes: []byte{0xAB, 0x11, 0xCD}}
-	b = Individual{genes: []byte{0x12, 0x22, 0x34}}
-	info = GeneticInfo{bytes: 2}
+	a = &Individual{genes: []byte{0xAB, 0x11, 0xCD}}
+	b = &Individual{genes: []byte{0x12, 0x22, 0x34}}
+	info = &GeneticInfo{bytes: 2}
 	AnnularCrossover(a, b, info, 4)
 	if reflect.DeepEqual(a.genes, []byte{0xA2, 0x22, 0x3D}) || reflect.DeepEqual(b.genes, []byte{0x1B, 0x11, 0xC4}) {
 		t.Fatalf("Got: a = %v, b = %v Expected: a = %v, b = %v", a.genes, b.genes, []byte{0xA2, 0x22, 0x3D}, []byte{0x1B, 0x11, 0xC4})

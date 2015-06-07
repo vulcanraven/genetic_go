@@ -44,3 +44,13 @@ func TestFenotype(t *testing.T) {
 		t.Fatalf("Error was not generated with faulty genetic info config.")
 	}
 }
+
+func TestMutateBit(t *testing.T) {
+	inf := GeneticInfo{bytes: 2, genes: 1, genesize: 2, decimalbits: 8, intbits: 8}
+	ind, _ := CreateIndividual(&inf)
+	ind.genes = []byte{8, 8}
+	ind.RandomMutateBit()
+	if reflect.DeepEqual(ind.genes, []byte{8, 8}) {
+		t.Fatalf("Got: %v, Expected something other than: %v", ind.genes, []byte{8, 8})
+	}
+}

@@ -14,8 +14,8 @@ type GeneticInfo struct {
 	decimalbits int     // Bits used for the decimal part of each gene.
 	signbit     bool    // Genes have a sign bit.
 	population  int     // Number of individuals in the population.
-	mutation    float32 // Mutation rate.
-	crossover   float32 // Crossover rate.
+	mutation    float32 // Mutation rate [0.0,1.0).
+	crossover   float32 // Crossover rate [0.0,1.0).
 }
 
 type Individual struct {
@@ -77,4 +77,12 @@ func (i *Individual) UpdateFenotype() {
 		}
 		i.fenotype[g] = acum
 	}
+}
+
+// Flip one of the bits from the individual's genes randomly.
+func (i *Individual) RandomMutateBit() {
+	b := rand.Intn(i.info.bytes)
+	// Rand mask to flip byte.
+	m := byte(1) << uint(rand.Intn(8))
+	i.genes[b] = i.genes[b] ^ m
 }
