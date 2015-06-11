@@ -25,7 +25,7 @@ func TestEga(t *testing.T) {
 		intbits:     7,
 		decimalbits: 8,
 		signbit:     true,
-		population:  30000,
+		population:  100,
 		mutation:    0.01,
 		crossover:   0.9,
 	}
@@ -35,11 +35,74 @@ func TestEga(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	best := ga.RunConcurrent(200, 4)
+	best := ga.Run(100, true)
 
 	if best.aptitude > 170.0 {
 		// Global minimum is -176.54
 		t.Fatalf("Got: %f, Expected: %f", best.aptitude, -176.54)
 	}
 
+}
+
+func BenchmarkEga(t *testing.B) {
+	info := &GeneticInfo{
+		genesize:    2,
+		genes:       2,
+		bytes:       4,
+		intbits:     7,
+		decimalbits: 8,
+		signbit:     true,
+		population:  500,
+		mutation:    0.01,
+		crossover:   0.9,
+	}
+	ga := Ega{}
+	err := ga.Setup(info, Fitness(&HansenFunc{}))
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	_ = ga.Run(100, false)
+}
+
+func BenchmarkEgaConcurrent2(t *testing.B) {
+	info := &GeneticInfo{
+		genesize:    2,
+		genes:       2,
+		bytes:       4,
+		intbits:     7,
+		decimalbits: 8,
+		signbit:     true,
+		population:  500,
+		mutation:    0.01,
+		crossover:   0.9,
+	}
+	ga := Ega{}
+	err := ga.Setup(info, Fitness(&HansenFunc{}))
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	_ = ga.RunConcurrent(100, 2, false)
+}
+
+func BenchmarkEgaConcurrent3(t *testing.B) {
+	info := &GeneticInfo{
+		genesize:    2,
+		genes:       2,
+		bytes:       4,
+		intbits:     7,
+		decimalbits: 8,
+		signbit:     true,
+		population:  500,
+		mutation:    0.01,
+		crossover:   0.9,
+	}
+	ga := Ega{}
+	err := ga.Setup(info, Fitness(&HansenFunc{}))
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	_ = ga.RunConcurrent(100, 3, false)
 }

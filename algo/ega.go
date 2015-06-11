@@ -3,6 +3,7 @@ package genetic
 import (
 	"fmt"
 	"math/rand"
+	"runtime"
 	"sort"
 	"time"
 )
@@ -33,10 +34,12 @@ func (d *Ega) Setup(inf *GeneticInfo, evalf Fitness) error {
 	return nil
 }
 
-func (d *Ega) Run(generations int) *Individual {
+func (d *Ega) Run(generations int, printg bool) *Individual {
 	// Calculate bits to mutate.
 	mutatebits := int(float32(d.info.PopulationBytes()) * 8.0 * d.info.mutation)
-	fmt.Printf("Mutating %d bits each generation.\n", mutatebits)
+	if printg {
+		fmt.Printf("Mutating %d bits each generation.\n", mutatebits)
+	}
 	// Evaluate last n.
 	for i := d.info.population; i < d.info.population*2; i++ {
 		d.population[i].aptitude = d.eval.Eval(d.population[i].fenotype)
@@ -49,7 +52,9 @@ func (d *Ega) Run(generations int) *Individual {
 		// Sort by aptitude.
 		sort.Sort(ByAptitude(d.population))
 		// Print best aptitude individual.
-		fmt.Println(g+1, "- Best: ", d.population[0].aptitude)
+		if printg {
+			fmt.Println(g+1, "- Best: ", d.population[0].aptitude)
+		}
 		// Clone best n into the worst n of the population.
 		for i := 0; i < d.info.population; i++ {
 			*d.population[d.info.population+i] = *d.population[i]
@@ -76,7 +81,9 @@ func (d *Ega) Run(generations int) *Individual {
 		d.population[i].aptitude = d.eval.Eval(d.population[i].fenotype)
 	}
 	sort.Sort(ByAptitude(d.population))
-	fmt.Println("Global Best: ", d.population[0].aptitude)
+	if printg {
+		fmt.Println("Global Best: ", d.population[0].aptitude)
+	}
 	return d.population[0]
 }
 
@@ -85,10 +92,13 @@ func evalInd(ind *Individual, evalf Fitness, c chan bool) {
 	c <- true
 }
 
-func (d *Ega) RunConcurrent(generations, threads int) *Individual {
+func (d *Ega) RunConcurrent(generations, threads int, printg bool) *Individual {
 	// Calculate bits to mutate.
 	mutatebits := int(float32(d.info.PopulationBytes()) * 8.0 * d.info.mutation)
-	fmt.Printf("Mutating %d bits each generation.\n", mutatebits)
+	if printg {
+		fmt.Printf("Mutating %d bits each generation.\n", mutatebits)
+	}
+	runtime.GOMAXPROCS(threads)
 	// Evaluate last n.
 	c := make(chan bool, threads)
 	for i := d.info.population; i < d.info.population*2; i++ {
@@ -104,7 +114,9 @@ func (d *Ega) RunConcurrent(generations, threads int) *Individual {
 		// Sort by aptitude.
 		sort.Sort(ByAptitude(d.population))
 		// Print best aptitude individual.
-		fmt.Println(g+1, "- Best: ", d.population[0].aptitude)
+		if printg {
+			fmt.Println(g+1, "- Best: ", d.population[0].aptitude)
+		}
 		// Clone best n into the worst n of the population.
 		for i := 0; i < d.info.population; i++ {
 			*d.population[d.info.population+i] = *d.population[i]
@@ -132,6 +144,8 @@ func (d *Ega) RunConcurrent(generations, threads int) *Individual {
 		<-c
 	}
 	sort.Sort(ByAptitude(d.population))
-	fmt.Println("Global Best: ", d.population[0].aptitude)
+	if printg {
+		fmt.Println("Global Best: ", d.population[0].aptitude)
+	}
 	return d.population[0]
 }
